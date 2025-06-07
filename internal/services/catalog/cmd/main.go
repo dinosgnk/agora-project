@@ -8,12 +8,11 @@ import (
 )
 
 func main() {
-
-	router := gin.Default()
 	productRepository := repository.NewProductRepository()
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(productService)
 
+	router := gin.Default()
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.String(200, "Catalog service is healthy")
 	})
