@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/dinosgnk/agora-project/internal/services/cart/handler"
- 	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
+	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
 	"github.com/dinosgnk/agora-project/internal/services/cart/service"
 )
 
 func main() {
-	cartRepository := repository.NewCartRepository()
+	cartRepository := repository.NewInMemoryRepository()
 	cartService := service.NewCartService(cartRepository)
 	cartHandler := handler.NewCartHandler(cartService)
 

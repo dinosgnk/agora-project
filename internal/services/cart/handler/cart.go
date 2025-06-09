@@ -24,7 +24,7 @@ func (ch *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	basket, err := ch.service.GetCart(userId)
+	basket, err := ch.service.GetCartByUserId(userId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return

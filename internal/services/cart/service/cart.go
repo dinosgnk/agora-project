@@ -8,7 +8,7 @@ import (
 )
 
 type ICartService interface {
-	GetCart(userId string) (*model.Cart, error)
+	GetCartByUserId(userId string) (*model.Cart, error)
 	AddItem(userId string, itemToAdd *model.Item) error
 	RemoveItem(userId string, productId string) error
 	UpdateCart(userId string, updatedCart map[string]int) error
@@ -23,12 +23,12 @@ func NewCartService(repo repository.ICartRepository) *CartService {
 	return &CartService{repo: repo}
 }
 
-func (cs *CartService) GetCart(userId string) (*model.Cart, error) {
-	return cs.repo.GetCart(userId)
+func (cs *CartService) GetCartByUserId(userId string) (*model.Cart, error) {
+	return cs.repo.GetCartByUserId(userId)
 }
 
 func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
-	cart, err := cs.repo.GetCart(userId)
+	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
 		cart = &model.Cart{
 			UserId: userId,
@@ -49,9 +49,9 @@ func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
 }
 
 func (cs *CartService) RemoveItem(userId string, productId string) error {
-	cart, err := cs.repo.GetCart(userId)
+	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
-		return errors.New("Cart not found")
+		return errors.New("cart not found")
 	}
 
 	// Filter out the item
@@ -67,9 +67,9 @@ func (cs *CartService) RemoveItem(userId string, productId string) error {
 }
 
 func (cs *CartService) UpdateCart(userId string, updatedCart map[string]int) error {
-	cart, err := cs.repo.GetCart(userId)
+	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
-		return errors.New("Cart not found")
+		return errors.New("cart not found")
 	}
 
 	for i, item := range cart.Items {
