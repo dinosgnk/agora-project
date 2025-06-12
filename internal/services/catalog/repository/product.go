@@ -85,7 +85,7 @@ func (repo *ProductRepository) CreateProduct(product *model.Product) (*model.Pro
 }
 
 func (repo *ProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
-	err := repo.db.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(p).Error
+	err := repo.db.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(product).Error
 	return product, err
 }
 

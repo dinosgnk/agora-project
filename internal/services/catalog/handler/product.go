@@ -89,7 +89,7 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	product := model.Product{
+	product := &model.Product{
 		ProductId:   id,
 		Name:        req.Name,
 		Category:    req.Category,
@@ -97,7 +97,7 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 		Price:       req.Price,
 	}
 
-	updatedProduct, err := h.service.UpdateProduct(&product)
+	updatedProduct, err := h.service.UpdateProduct(id, product)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

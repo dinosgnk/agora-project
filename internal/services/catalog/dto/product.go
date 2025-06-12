@@ -8,15 +8,15 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	ProductId   int     `json:"id" binding:"required"`
-	Name        *string `json:"name"`
-	Category    *string `json:"category"`
-	Description *string `json:"description"`
-	Price       *float64 `json:"price" binding:"omitempty,gte=0"`
+	ProductId   string  `json:"id" binding:"required"`
+	Name        string  `json:"name" binding:"omitempty"`
+	Category    string  `json:"category" binding:"omitempty"`
+	Description string  `json:"description" binding:"omitempty"`
+	Price       float64 `json:"price" binding:"omitempty,gte=0"`
 }
 
 type ProductResponse struct {
-	ProductId   int     `json:"id"`
+	ProductId   string  `json:"id"`
 	Name        string  `json:"name"`
 	Category    string  `json:"category"`
 	Description string  `json:"description"`

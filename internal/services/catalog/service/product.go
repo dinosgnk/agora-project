@@ -60,7 +60,7 @@ func (p *ProductService) CreateProduct(product *model.Product) (*model.Product, 
 }
 
 func (p *ProductService) UpdateProduct(id string, updatedProduct *model.Product) (*model.Product, error) {
-	product, err := p.repo.UpdateProduct(id, updatedProduct)
+	product, err := p.repo.UpdateProduct(updatedProduct)
 	if err != nil {
 		return nil, err
 	}
