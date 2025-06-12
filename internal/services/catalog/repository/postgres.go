@@ -9,20 +9,11 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-type IProductRepository interface {
-	GetAllProducts() (*[]model.Product, error)
-	GetProductsByCategory(category string) (*[]model.Product, error)
-	GetProductById(id string) (*model.Product, error)
-	CreateProduct(*model.Product) (*model.Product, error)
-	UpdateProduct(*model.Product) (*model.Product, error)
-	DeleteProduct(id string) (bool, error)
-}
-
-type ProductRepository struct {
+type PostgresProductRepository struct {
 	db *gorm.DB
 }
 
-func NewProductRepository() *ProductRepository {
+func NewPostgresProductRepository() *PostgresProductRepository {
 	datasource := "postgres://devuser:devpass@localhost:5432/AgoraDB?sslmode=disable"
 
 	gormDb, err := gorm.Open(postgres.Open(datasource), &gorm.Config{
@@ -43,10 +34,10 @@ func NewProductRepository() *ProductRepository {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(30)
 
-	return &ProductRepository{db: gormDb}
+	return &PostgresProductRepository{db: gormDb}
 }
 
-func (repo *ProductRepository) GetAllProducts() (*[]model.Product, error) {
+func (repo *PostgresProductRepository) GetAllProducts() (*[]model.Product, error) {
 	var products []model.Product
 	result := repo.db.Find(&products)
 	if result.Error != nil {
@@ -56,7 +47,7 @@ func (repo *ProductRepository) GetAllProducts() (*[]model.Product, error) {
 	return &products, nil
 }
 
-func (repo *ProductRepository) GetProductsByCategory(category string) (*[]model.Product, error) {
+func (repo *PostgresProductRepository) GetProductsByCategory(category string) (*[]model.Product, error) {
 	var products []model.Product
 	result := repo.db.Where("category = ?", category).Find(&products)
 	if result.Error != nil {
@@ -66,7 +57,7 @@ func (repo *ProductRepository) GetProductsByCategory(category string) (*[]model.
 	return &products, nil
 }
 
-func (repo *ProductRepository) GetProductById(id string) (*model.Product, error) {
+func (repo *PostgresProductRepository) GetProductById(id string) (*model.Product, error) {
 	var product model.Product
 	result := repo.db.Where("product_id = ?", id).Find(&product)
 	if result.Error != nil {
@@ -76,7 +67,7 @@ func (repo *ProductRepository) GetProductById(id string) (*model.Product, error)
 	return &product, nil
 }
 
-func (repo *ProductRepository) CreateProduct(product *model.Product) (*model.Product, error) {
+func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*model.Product, error) {
 	result := repo.db.Create(product)
 	if result.Error != nil {
 		return nil, result.Error
@@ -84,12 +75,12 @@ func (repo *ProductRepository) CreateProduct(product *model.Product) (*model.Pro
 	return product, nil
 }
 
-func (repo *ProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
+func (repo *PostgresProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
 	err := repo.db.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(product).Error
 	return product, err
 }
 
-func (repo *ProductRepository) DeleteProduct(id string) (bool, error) {
+func (repo *PostgresProductRepository) DeleteProduct(id string) (bool, error) {
 	result := repo.db.Delete(&model.Product{}, "prodict_id = ?", id)
 	if result.Error != nil {
 		return false, result.Error

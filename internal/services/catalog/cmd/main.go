@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	productRepository := repository.NewProductRepository()
+	productRepository := repository.NewPostgresProductRepository()
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(productService)
 
