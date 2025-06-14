@@ -16,23 +16,23 @@ func NewMockProductRepository() *MockProductRepository {
 	}
 }
 
-func (repo *MockProductRepository) GetAllProducts() (*[]model.Product, error) {
-	var productList []model.Product
+func (repo *MockProductRepository) GetAllProducts() ([]*model.Product, error) {
+	var productList []*model.Product
 	for _, product := range repo.data {
 		productList = append(productList, product)
 	}
-	return &productList, nil
+	return productList, nil
 }
 
-func (repo *MockProductRepository) GetProductsByCategory(category string) (*[]model.Product, error) {
-	var productList []model.Product
+func (repo *MockProductRepository) GetProductsByCategory(category string) ([]*model.Product, error) {
+	var productList []*model.Product
 	for _, product := range repo.data {
 		if product.Category == category {
 			productList = append(productList, product)
 		}
 	}
 	if len(productList) == 0 {
-		return nil, errors.New("No products found in this category")
+		return nil, errors.New("no products found in this category")
 	}
 	return productList, nil
 }
@@ -48,7 +48,7 @@ func (repo *MockProductRepository) CreateProduct(product *model.Product) error {
 func (repo *MockProductRepository) GetProduct(id string) (*model.Product, error) {
 	product, exists := repo.data[id]
 	if !exists {
-		return nil, errors.New("Product not found")
+		return nil, errors.New("product not found")
 	}
 	return product, nil
 }

@@ -18,7 +18,7 @@ func NewProductHandler(s *service.ProductService) *ProductHandler {
 }
 
 func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
-	var products *[]model.Product
+	var products []*model.Product
 	products, err := h.service.GetAllProducts()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
@@ -30,7 +30,7 @@ func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
 
 func (h *ProductHandler) GetProductsByCategory(ctx *gin.Context) {
 	category := ctx.Param("category")
-	var products *[]model.Product
+	var products []*model.Product
 	products, err := h.service.GetProductsByCategory(category)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())

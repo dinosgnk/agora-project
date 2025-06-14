@@ -5,8 +5,8 @@ import (
 )
 
 type IProductRepository interface {
-	GetAllProducts() (*[]model.Product, error)
-	GetProductsByCategory(category string) (*[]model.Product, error)
+	GetAllProducts() ([]*model.Product, error)
+	GetProductsByCategory(category string) ([]*model.Product, error)
 	GetProductById(id string) (*model.Product, error)
 	CreateProduct(*model.Product) (*model.Product, error)
 	UpdateProduct(*model.Product) (*model.Product, error)

@@ -6,8 +6,8 @@ import (
 )
 
 type IProductService interface {
-	GetAllProducts() (*[]model.Product, error)
-	GetProductsByCategory(category string) (*[]model.Product, error)
+	GetAllProducts() ([]*model.Product, error)
+	GetProductsByCategory(category string) ([]*model.Product, error)
 	GetProductById(id string) (*model.Product, error)
 	CreateProduct(model.Product) (*model.Product, error)
 	UpdateProduct(id string)
@@ -24,7 +24,7 @@ func NewProductService(repo repository.IProductRepository) *ProductService {
 	}
 }
 
-func (p *ProductService) GetAllProducts() (*[]model.Product, error) {
+func (p *ProductService) GetAllProducts() ([]*model.Product, error) {
 	products, err := p.repo.GetAllProducts()
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (p *ProductService) GetAllProducts() (*[]model.Product, error) {
 	return products, nil
 }
 
-func (p *ProductService) GetProductsByCategory(category string) (*[]model.Product, error) {
+func (p *ProductService) GetProductsByCategory(category string) ([]*model.Product, error) {
 	products, err := p.repo.GetProductsByCategory(category)
 	if err != nil {
 		return nil, err

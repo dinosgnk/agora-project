@@ -37,34 +37,34 @@ func NewPostgresProductRepository() *PostgresProductRepository {
 	return &PostgresProductRepository{db: gormDb}
 }
 
-func (repo *PostgresProductRepository) GetAllProducts() (*[]model.Product, error) {
-	var products []model.Product
-	result := repo.db.Find(&products)
+func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error) {
+	var products []*model.Product
+	result := repo.db.Find(products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &products, nil
+	return products, nil
 }
 
-func (repo *PostgresProductRepository) GetProductsByCategory(category string) (*[]model.Product, error) {
-	var products []model.Product
-	result := repo.db.Where("category = ?", category).Find(&products)
+func (repo *PostgresProductRepository) GetProductsByCategory(category string) ([]*model.Product, error) {
+	var products []*model.Product
+	result := repo.db.Where("category = ?", category).Find(products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &products, nil
+	return products, nil
 }
 
 func (repo *PostgresProductRepository) GetProductById(id string) (*model.Product, error) {
-	var product model.Product
-	result := repo.db.Where("product_id = ?", id).Find(&product)
+	var product *model.Product
+	result := repo.db.Where("product_id = ?", id).Find(product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &product, nil
+	return product, nil
 }
 
 func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*model.Product, error) {
