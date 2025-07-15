@@ -87,7 +87,7 @@ func (ch *CartHandler) UpdateCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Items == nil || len(req.Items) == 0 {
+	if len(req.Items) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 	}
 

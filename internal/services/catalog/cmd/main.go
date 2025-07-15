@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/dinosgnk/agora-project/internal/services/catalog/handler"
+	"github.com/dinosgnk/agora-project/internal/services/catalog/metrics"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/repository"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/service"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -13,6 +15,11 @@ func main() {
 	productHandler := handler.NewProductHandler(productService)
 
 	router := gin.Default()
+
+	router.Use(metrics.PrometheusMiddleware())
+
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.String(200, "Catalog service is healthy")
 	})
@@ -23,5 +30,5 @@ func main() {
 	router.PUT("/products/:id", productHandler.UpdateProduct)
 	router.DELETE("/products/:id", productHandler.DeleteProduct)
 
-	router.Run(":8080") // Listen and serve on 0.0.0.0:8080
+	router.Run(":8080")
 }
