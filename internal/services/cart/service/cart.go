@@ -74,9 +74,7 @@ func (cs *CartService) UpdateCart(userId string, updatedCart map[string]int) err
 
 	for i, item := range cart.Items {
 		if newQuantity, exists := updatedCart[item.ProductId]; exists {
-			if newQuantity < 0 {
-				return errors.New("Invalid quantity for product: " + item.ProductId)
-			} else if newQuantity == 0 {
+			if newQuantity == 0 {
 				cart.Items = append(cart.Items[:i], cart.Items[i+1:]...)
 				i--
 			}

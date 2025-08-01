@@ -8,9 +8,9 @@ import (
 var (
 	httpRequestDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:    "cart_http_request_duration_seconds",
-			Help:    "Duration of HTTP requests in seconds",
-			Buckets: prometheus.DefBuckets,
+			Name:    "cart_http_request_duration_milliseconds",
+			Help:    "Duration of HTTP requests in milliseconds",
+			Buckets: []float64{0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100},
 		},
 		[]string{"method", "path", "status_code"},
 	)
@@ -38,7 +38,7 @@ var (
 			Help:    "Size of HTTP requests in bytes",
 			Buckets: []float64{100, 1000, 10000, 100000, 1000000},
 		},
-		[]string{"method", "path"},
+		[]string{"method", "path", "status_code"},
 	)
 
 	httpRequestsInFlight = promauto.NewGaugeVec(
