@@ -5,11 +5,14 @@ import (
 	"github.com/dinosgnk/agora-project/internal/services/catalog/metrics"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/repository"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/service"
+	"github.com/dinosgnk/agora-project/pkg/config"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
+	cfg := config.LoadConfig()
+
 	productRepository := repository.NewPostgresProductRepository()
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(productService)
@@ -30,5 +33,5 @@ func main() {
 	router.PUT("/products/:id", productHandler.UpdateProduct)
 	router.DELETE("/products/:id", productHandler.DeleteProduct)
 
-	router.Run(":8080")
+	router.Run(":" + cfg.Port)
 }

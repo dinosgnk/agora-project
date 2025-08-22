@@ -8,10 +8,14 @@ import (
 	"github.com/dinosgnk/agora-project/internal/services/cart/metrics"
 	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
 	"github.com/dinosgnk/agora-project/internal/services/cart/service"
+	"github.com/dinosgnk/agora-project/pkg/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
+	cfg := config.LoadConfig()
+	log.Printf("Loaded config: %+v\n", cfg)
+
 	cartRepository := repository.NewInMemoryRepository()
 	cartService := service.NewCartService(cartRepository)
 	cartHandler := handler.NewCartHandler(cartService)
@@ -52,6 +56,6 @@ func main() {
 		}
 	}))
 
-	log.Println("Cart service listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Cart service listening on port:", cfg.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, nil))
 }
