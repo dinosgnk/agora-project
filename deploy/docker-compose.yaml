@@ -1,22 +1,55 @@
-version: '3.8'
-
 services:
+  catalog-service:
+    build:
+      context: ..
+      dockerfile: internal/services/catalog/Dockerfile.development
+    container_name: agora-catalog-service
+    environment:
+      - ENVIRONMENT=Development
+      - PORT=5000
+      - DB_HOST=agora-postgres
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=admin_pass
+      - DB_NAME=AgoraDB
+    ports:
+      - "8081:5000"
+    networks:
+      - agora-network
+    restart: unless-stopped
+
   postgres:
     image: postgres:17-alpine
-    container_name: postgres
+    container_name: agora-postgres
     environment:
-      POSTGRES_USER: devuser
-      POSTGRES_PASSWORD: devpass
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin_pass
       POSTGRES_DB: AgoraDB
     ports:
       - "5432:5432"
     volumes:
       - agora-postgres-data:/var/lib/postgresql/data
+      - ../scripts/seed_dev_db.sql:/docker-entrypoint-initdb.d/seed_dev_db.sql
     networks:
-      - agora-dev-net
+      - agora-network
+
+  cart-service:
+    build:
+      context: ..
+      dockerfile: internal/services/cart/Dockerfile.development
+    container_name: agora-cart-service
+    environment:
+      - ENVIRONMENT=Development
+      - PORT=5000
+    ports:
+      - "8082:5000"
+    networks:
+      - agora-network
+    restart: unless-stopped
 
 volumes:
   agora-postgres-data:
 
 networks:
-  agora-dev-net:
+  agora-network:
+    driver: bridge

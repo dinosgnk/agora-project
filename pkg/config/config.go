@@ -20,7 +20,7 @@ func LoadConfig() *Config {
 	environment := os.Getenv("ENVIRONMENT")
 	if environment == "" {
 		currentDir, _ := os.Getwd()
-		configPath := filepath.Join(currentDir, ".env.development")
+		configPath := filepath.Join(currentDir, ".env.local")
 		if _, err := os.Stat(configPath); err == nil {
 			err := godotenv.Load(configPath)
 			if err != nil {
