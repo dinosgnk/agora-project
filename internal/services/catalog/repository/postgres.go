@@ -14,7 +14,7 @@ type PostgresProductRepository struct {
 }
 
 func NewPostgresProductRepository() *PostgresProductRepository {
-	datasource := "postgres://devuser:devpass@localhost:5432/AgoraDB?sslmode=disable"
+	datasource := "postgres://admin:admin_pass@agora-postgres:5432/AgoraDB?sslmode=disable"
 
 	gormDb, err := gorm.Open(postgres.Open(datasource), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
@@ -39,7 +39,7 @@ func NewPostgresProductRepository() *PostgresProductRepository {
 
 func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error) {
 	var products []*model.Product
-	result := repo.db.Find(products)
+	result := repo.db.Find(&products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -49,7 +49,7 @@ func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error
 
 func (repo *PostgresProductRepository) GetProductsByCategory(category string) ([]*model.Product, error) {
 	var products []*model.Product
-	result := repo.db.Where("category = ?", category).Find(products)
+	result := repo.db.Where("category = ?", category).Find(&products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
