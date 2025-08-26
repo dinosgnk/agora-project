@@ -4,42 +4,34 @@ import (
 	"fmt"
 
 	"github.com/dinosgnk/agora-project/internal/services/catalog/model"
-	"gorm.io/driver/postgres"
+	"github.com/dinosgnk/agora-project/pkg/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
 type PostgresProductRepository struct {
-	db *gorm.DB
+	gormDb *postgres.GormDatabase
 }
 
 func NewPostgresProductRepository() *PostgresProductRepository {
-	datasource := "postgres://admin:admin_pass@agora-postgres:5432/AgoraDB?sslmode=disable"
 
-	gormDb, err := gorm.Open(postgres.Open(datasource), &gorm.Config{
+	gormDb, err := postgres.NewGormDatabase(&gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "products.t_",
 			SingularTable: true,
 		},
 	})
+
 	if err != nil {
 		fmt.Printf("Cannot connect to database")
 	}
 
-	// Set up connection pool
-	sqlDB, err := gormDb.DB()
-	if err != nil {
-
-	}
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(30)
-
-	return &PostgresProductRepository{db: gormDb}
+	return &PostgresProductRepository{gormDb: gormDb}
 }
 
 func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error) {
 	var products []*model.Product
-	result := repo.db.Find(&products)
+	result := repo.gormDb.Find(&products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -49,7 +41,7 @@ func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error
 
 func (repo *PostgresProductRepository) GetProductsByCategory(category string) ([]*model.Product, error) {
 	var products []*model.Product
-	result := repo.db.Where("category = ?", category).Find(&products)
+	result := repo.gormDb.Where("category = ?", category).Find(&products)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -59,7 +51,7 @@ func (repo *PostgresProductRepository) GetProductsByCategory(category string) ([
 
 func (repo *PostgresProductRepository) GetProductById(id string) (*model.Product, error) {
 	var product *model.Product
-	result := repo.db.Where("product_id = ?", id).Find(product)
+	result := repo.gormDb.Where("product_id = ?", id).Find(product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -68,7 +60,7 @@ func (repo *PostgresProductRepository) GetProductById(id string) (*model.Product
 }
 
 func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*model.Product, error) {
-	result := repo.db.Create(product)
+	result := repo.gormDb.Create(product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -76,12 +68,12 @@ func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*m
 }
 
 func (repo *PostgresProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
-	err := repo.db.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(product).Error
+	err := repo.gormDb.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(product).Error
 	return product, err
 }
 
 func (repo *PostgresProductRepository) DeleteProduct(id string) (bool, error) {
-	result := repo.db.Delete(&model.Product{}, "prodict_id = ?", id)
+	result := repo.gormDb.Delete(&model.Product{}, "prodict_id = ?", id)
 	if result.Error != nil {
 		return false, result.Error
 	}

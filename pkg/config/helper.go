@@ -14,9 +14,7 @@ type Config struct {
 	Port        string `env:"PORT"`
 }
 
-func LoadConfig() *Config {
-	var cfg Config
-
+func LoadConfig[T any]() *T {
 	environment := os.Getenv("ENVIRONMENT")
 	if environment == "" {
 		currentDir, _ := os.Getwd()
@@ -29,6 +27,7 @@ func LoadConfig() *Config {
 		}
 	}
 
+	var cfg T
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalf("cannot parse env variables, error: %v", err)
 	}
