@@ -3,8 +3,8 @@ package repository
 import (
 	"fmt"
 
+	"github.com/dinosgnk/agora-project/internal/pkg/postgres"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/model"
-	"github.com/dinosgnk/agora-project/pkg/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )

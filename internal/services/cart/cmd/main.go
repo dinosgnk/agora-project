@@ -4,18 +4,17 @@ import (
 	"log"
 	"net/http"
 
+	confighelper "github.com/dinosgnk/agora-project/internal/pkg/config"
 	"github.com/dinosgnk/agora-project/internal/services/cart/config"
 	"github.com/dinosgnk/agora-project/internal/services/cart/handler"
 	"github.com/dinosgnk/agora-project/internal/services/cart/metrics"
 	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
 	"github.com/dinosgnk/agora-project/internal/services/cart/service"
-	confighelper "github.com/dinosgnk/agora-project/pkg/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
 	cfg := confighelper.LoadConfig[config.AppConfig]()
-	log.Printf("Loaded config: %+v\n", cfg)
 
 	cartRepository := repository.NewInMemoryRepository()
 	cartService := service.NewCartService(cartRepository)

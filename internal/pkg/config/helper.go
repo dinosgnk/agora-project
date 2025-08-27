@@ -9,11 +9,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Config struct {
-	Environment string `env:"ENVIRONMENT"`
-	Port        string `env:"PORT"`
-}
-
 func LoadConfig[T any]() *T {
 	environment := os.Getenv("ENVIRONMENT")
 	if environment == "" {

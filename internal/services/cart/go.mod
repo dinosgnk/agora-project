@@ -3,11 +3,11 @@ module github.com/dinosgnk/agora-project/internal/services/cart
 go 1.24.4
 
 require (
-	github.com/dinosgnk/agora-project/pkg v1.0.0
+	github.com/dinosgnk/agora-project/internal/pkg v1.0.0
 	github.com/prometheus/client_golang v1.22.0
 )
 
-replace github.com/dinosgnk/agora-project/pkg => ../../../pkg
+replace github.com/dinosgnk/agora-project/internal/pkg => ../../pkg
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

@@ -1,12 +1,12 @@
 package main
 
 import (
+	confighelper "github.com/dinosgnk/agora-project/internal/pkg/config"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/config"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/handler"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/metrics"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/repository"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/service"
-	confighelper "github.com/dinosgnk/agora-project/pkg/config"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

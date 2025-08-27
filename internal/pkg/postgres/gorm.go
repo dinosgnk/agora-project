@@ -6,7 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/dinosgnk/agora-project/pkg/config"
+	"github.com/dinosgnk/agora-project/internal/pkg/config"
 )
 
 type GormDatabase struct {

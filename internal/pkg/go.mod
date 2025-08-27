@@ -1,4 +1,4 @@
-module github.com/dinosgnk/agora-project/pkg
+module github.com/dinosgnk/agora-project/internal/pkg
 
 go 1.24.3
 
