@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const service string = "cart"
+
 type customResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
@@ -36,16 +38,16 @@ func HTTPMetricsMiddleware(path string, next http.HandlerFunc) http.HandlerFunc 
 			size:           0,
 		}
 
-		httpRequestsInFlight.WithLabelValues(method, path).Inc()
+		httpRequestsInFlight.WithLabelValues(method, path, service).Inc()
 		next(crw, r)
-		httpRequestsInFlight.WithLabelValues(method, path).Dec()
+		httpRequestsInFlight.WithLabelValues(method, path, service).Dec()
 
 		duration := float64(time.Since(start).Nanoseconds()) / 1e6
 		statusCode := strconv.Itoa(crw.statusCode/100) + "xx"
 		responseSize := float64(crw.size)
-		httpRequestDuration.WithLabelValues(method, path, statusCode).Observe(duration)
-		httpRequestsTotal.WithLabelValues(method, path, statusCode).Inc()
-		httpRequestSize.WithLabelValues(method, path, statusCode).Observe(requestSize)
-		httpResponseSize.WithLabelValues(method, path, statusCode).Observe(responseSize)
+		httpRequestDuration.WithLabelValues(method, path, statusCode, service).Observe(duration)
+		httpRequestsTotal.WithLabelValues(method, path, statusCode, service).Inc()
+		httpRequestSize.WithLabelValues(method, path, statusCode, service).Observe(requestSize)
+		httpResponseSize.WithLabelValues(method, path, statusCode, service).Observe(responseSize)
 	}
 }
