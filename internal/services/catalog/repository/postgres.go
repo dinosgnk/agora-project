@@ -35,7 +35,6 @@ func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 	return products, nil
 }
 
