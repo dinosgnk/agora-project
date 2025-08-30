@@ -35,3 +35,6 @@ def get_all_products() -> List[Dict]:
     except Exception as e:
         print(f"Error fetching products: {e}")
         return []
+    
+
+print(get_all_product_categories())

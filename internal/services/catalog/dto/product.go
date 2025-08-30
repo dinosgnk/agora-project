@@ -1,6 +1,7 @@
 package dto
 
 type CreateProductRequest struct {
+	ProductCode string  `json:"product_code" binding:"required"`
 	Name        string  `json:"name" binding:"required"`
 	Category    string  `json:"category" binding:"required"`
 	Description string  `json:"description" binding:"required"`
@@ -8,7 +9,7 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	ProductId   string  `json:"id" binding:"required"`
+	ProductCode string  `json:"product_code" binding:"required"`
 	Name        string  `json:"name" binding:"omitempty"`
 	Category    string  `json:"category" binding:"omitempty"`
 	Description string  `json:"description" binding:"omitempty"`
@@ -16,7 +17,7 @@ type UpdateProductRequest struct {
 }
 
 type ProductResponse struct {
-	ProductId   string  `json:"id"`
+	ProductCode string  `json:"product_code"`
 	Name        string  `json:"name"`
 	Category    string  `json:"category"`
 	Description string  `json:"description"`

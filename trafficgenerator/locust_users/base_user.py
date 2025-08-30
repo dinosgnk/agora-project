@@ -27,7 +27,9 @@ class BaseAgoraUser(HttpUser):
 
     def _select_random_product(self) -> Optional[Dict]:
         """Get a random product from the fetched products"""
-        return random.choice(self._products) if self._products else None
+        random_product = random.choice(self._products) 
+        print(f"User {self.user_id} selected product: {random_product}")
+        return random_product
 
     def _pick_random_category(self) -> str:
         """Pick a random category using normal distribution to simulate behavior more realistically"""
@@ -61,12 +63,14 @@ class BaseAgoraUser(HttpUser):
         payload = {
             "user_id": self.user_id,
             "item": {
-                "product_id": str(product.get("id", "")),
+                "product_id": str(product.get("id")),
                 "name": product.get("name"),
                 "quantity": quantity,
                 "price": float(product.get("price"))
             }
         }
+
+        print(f"User {self.user_id} adding to cart: {payload}")
 
         response = self.client.post(
             f"{self._cart_host}/cart/item/add",

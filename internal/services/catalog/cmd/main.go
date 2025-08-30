@@ -29,10 +29,10 @@ func main() {
 	})
 	router.GET("/products", productHandler.GetAllProducts)
 	router.GET("/products/category/:category", productHandler.GetProductsByCategory)
-	router.GET("/products/:id", productHandler.GetProductById)
-	router.POST("/products/:id", productHandler.CreateProduct)
-	router.PUT("/products/:id", productHandler.UpdateProduct)
-	router.DELETE("/products/:id", productHandler.DeleteProduct)
+	router.GET("/products/:productCode", productHandler.GetProductByCode)
+	router.POST("/products/:productCode", productHandler.CreateProduct)
+	router.PUT("/products/:productCode", productHandler.UpdateProduct)
+	router.DELETE("/products/:productCode", productHandler.DeleteProduct)
 
 	router.Run(":" + cfg.Port)
 }

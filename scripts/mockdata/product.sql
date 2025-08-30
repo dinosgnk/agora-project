@@ -1,5 +1,3 @@
--- Seed data for products table
-
 INSERT INTO products.t_product (name, category, description, price, product_code, created_at) VALUES ('Horizontal tangible synergy', 'Books', 'Rule low small maintain reason. None song born child. Care time social American too anyone.', 111.25, '115468368852', '2025-05-21T08:31:28.380312');
 INSERT INTO products.t_product (name, category, description, price, product_code, created_at) VALUES ('Networked 4thgeneration methodology', 'Toys', 'Town feel easy couple. Prevent mission final he. Too quickly relationship case. Class because hundred both guess. May woman behavior style. Key could up.', 167.13, '835591577826', '2025-05-25T07:11:33.582830');
 INSERT INTO products.t_product (name, category, description, price, product_code, created_at) VALUES ('Front-line well-modulated emulation', 'Grocery', 'Under more character front both change person these. Task think go ability agree. Certainly state help clearly especially state one sit. Seek ask tax.', 187.23, '642048167064', '2025-03-11T12:32:57.249698');

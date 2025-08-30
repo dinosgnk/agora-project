@@ -1,4 +1,3 @@
-from locust import events
 from locust.stats import stats_printer, stats_history
 from locust.env import Environment
 from locust_users.casual_browser import *

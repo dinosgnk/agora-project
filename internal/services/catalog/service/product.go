@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/dinosgnk/agora-project/internal/services/catalog/dto"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/model"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/repository"
 )
@@ -8,10 +9,10 @@ import (
 type IProductService interface {
 	GetAllProducts() ([]*model.Product, error)
 	GetProductsByCategory(category string) ([]*model.Product, error)
-	GetProductById(id string) (*model.Product, error)
-	CreateProduct(model.Product) (*model.Product, error)
-	UpdateProduct(id string)
-	DeleteProduct(id string)
+	GetProductByCode(productCode string) (*dto.ProductResponse, error)
+	CreateProduct(product *model.Product) (*model.Product, error)
+	UpdateProduct(productCode string, product *model.Product) (*model.Product, error)
+	DeleteProduct(productCode string) (bool, error)
 }
 
 type ProductService struct {
@@ -42,13 +43,20 @@ func (p *ProductService) GetProductsByCategory(category string) ([]*model.Produc
 	return products, nil
 }
 
-func (p *ProductService) GetProductById(id string) (*model.Product, error) {
-	product, err := p.repo.GetProductById(id)
+func (p *ProductService) GetProductByCode(productCode string) (*dto.ProductResponse, error) {
+	product, err := p.repo.GetProductByCode(productCode)
 	if err != nil {
 		return nil, err
 	}
 
-	return product, nil
+	productResponse := &dto.ProductResponse{
+		ProductCode: product.ProductCode,
+		Name:        product.Name,
+		Category:    product.Category,
+		Description: product.Description,
+		Price:       product.Price,
+	}
+	return productResponse, nil
 }
 
 func (p *ProductService) CreateProduct(product *model.Product) (*model.Product, error) {
@@ -59,7 +67,7 @@ func (p *ProductService) CreateProduct(product *model.Product) (*model.Product, 
 	return createdProduct, nil
 }
 
-func (p *ProductService) UpdateProduct(id string, updatedProduct *model.Product) (*model.Product, error) {
+func (p *ProductService) UpdateProduct(productCode string, updatedProduct *model.Product) (*model.Product, error) {
 	product, err := p.repo.UpdateProduct(updatedProduct)
 	if err != nil {
 		return nil, err
@@ -67,8 +75,8 @@ func (p *ProductService) UpdateProduct(id string, updatedProduct *model.Product)
 	return product, nil
 }
 
-func (s *ProductService) DeleteProduct(id string) (bool, error) {
-	productDeleted, err := s.repo.DeleteProduct(id)
+func (s *ProductService) DeleteProduct(productCode string) (bool, error) {
+	productDeleted, err := s.repo.DeleteProduct(productCode)
 	if err != nil {
 		return false, err
 	}

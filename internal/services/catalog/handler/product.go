@@ -40,9 +40,9 @@ func (h *ProductHandler) GetProductsByCategory(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, products)
 }
 
-func (h *ProductHandler) GetProductById(ctx *gin.Context) {
-	id := ctx.Param("id")
-	product, err := h.service.GetProductById(id)
+func (h *ProductHandler) GetProductByCode(ctx *gin.Context) {
+	productCode := ctx.Param("productCode")
+	product, err := h.service.GetProductByCode(productCode)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -58,6 +58,7 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 	}
 
 	product := model.Product{
+		ProductCode: req.ProductCode,
 		Name:        req.Name,
 		Category:    req.Category,
 		Description: req.Description,
@@ -71,7 +72,7 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 	}
 
 	resp := dto.ProductResponse{
-		ProductId:   createdProduct.ProductId,
+		ProductCode: createdProduct.ProductCode,
 		Name:        createdProduct.Name,
 		Category:    createdProduct.Category,
 		Description: createdProduct.Description,
@@ -82,7 +83,7 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 }
 
 func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
-	id := ctx.Param("id")
+	productCode := ctx.Param("productCode")
 	var req dto.UpdateProductRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -90,21 +91,21 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 	}
 
 	product := &model.Product{
-		ProductId:   id,
+		ProductCode: req.ProductCode,
 		Name:        req.Name,
 		Category:    req.Category,
 		Description: req.Description,
 		Price:       req.Price,
 	}
 
-	updatedProduct, err := h.service.UpdateProduct(id, product)
+	updatedProduct, err := h.service.UpdateProduct(productCode, product)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	resp := dto.ProductResponse{
-		ProductId:   updatedProduct.ProductId,
+		ProductCode: updatedProduct.ProductCode,
 		Name:        updatedProduct.Name,
 		Category:    updatedProduct.Category,
 		Description: updatedProduct.Description,
@@ -115,8 +116,8 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 }
 
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
-	id := c.Param("id")
-	_, err := h.service.DeleteProduct(id)
+	productCode := c.Param("productCode")
+	_, err := h.service.DeleteProduct(productCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

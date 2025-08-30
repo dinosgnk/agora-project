@@ -45,8 +45,8 @@ func (repo *MockProductRepository) CreateProduct(product *model.Product) error {
 	return nil
 }
 
-func (repo *MockProductRepository) GetProduct(id string) (*model.Product, error) {
-	product, exists := repo.data[id]
+func (repo *MockProductRepository) GetProductByCode(productCode string) (*model.Product, error) {
+	product, exists := repo.data[productCode]
 	if !exists {
 		return nil, errors.New("product not found")
 	}
@@ -61,10 +61,10 @@ func (repo *MockProductRepository) UpdateProduct(product *model.Product) error {
 	return nil
 }
 
-func (repo *MockProductRepository) DeleteProduct(id string) error {
-	if _, exists := repo.data[id]; !exists {
+func (repo *MockProductRepository) DeleteProduct(productCode string) error {
+	if _, exists := repo.data[productCode]; !exists {
 		return errors.New("product not found")
 	}
-	delete(repo.data, id)
+	delete(repo.data, productCode)
 	return nil
 }

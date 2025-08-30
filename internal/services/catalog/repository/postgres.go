@@ -48,9 +48,9 @@ func (repo *PostgresProductRepository) GetProductsByCategory(category string) ([
 	return products, nil
 }
 
-func (repo *PostgresProductRepository) GetProductById(id string) (*model.Product, error) {
+func (repo *PostgresProductRepository) GetProductByCode(productCode string) (*model.Product, error) {
 	var product *model.Product
-	result := repo.gormDb.Where("product_id = ?", id).Find(product)
+	result := repo.gormDb.Where("product_code = ?", productCode).First(&product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -67,12 +67,12 @@ func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*m
 }
 
 func (repo *PostgresProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
-	err := repo.gormDb.Model(&model.Product{}).Where("product_id = ?", product.ProductId).Updates(product).Error
+	err := repo.gormDb.Model(&model.Product{}).Where("product_code = ?", product.ProductCode).Updates(product).Error
 	return product, err
 }
 
-func (repo *PostgresProductRepository) DeleteProduct(id string) (bool, error) {
-	result := repo.gormDb.Delete(&model.Product{}, "prodict_id = ?", id)
+func (repo *PostgresProductRepository) DeleteProduct(productCode string) (bool, error) {
+	result := repo.gormDb.Delete(&model.Product{}, "product_code = ?", productCode)
 	if result.Error != nil {
 		return false, result.Error
 	}

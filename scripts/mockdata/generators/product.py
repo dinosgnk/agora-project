@@ -69,10 +69,9 @@ class ProductGenerator(BaseDataGenerator):
             description = product['description'].replace("'", "''")
             category = product['category'].replace("'", "''")
             
-            # Match the database schema: Name, Category, Description, Price
             sql = (
-                f"INSERT INTO products.t_product (Name, Category, Description, Price) "
-                f"VALUES ('{name}', '{category}', '{description}', {product['price']});"
+                f"INSERT INTO products.t_product (name, category, description, price, product_code, created_at) "
+                f"VALUES ('{name}', '{category}', '{description}', {product['price']}, '{product['product_code']}', '{product['created_at']}');"
             )
             sql_lines.append(sql)
         
