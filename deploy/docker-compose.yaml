@@ -28,8 +28,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - agora-postgres-data:/var/lib/postgresql/data
-      - ../scripts/seed_dev_db.sql:/docker-entrypoint-initdb.d/seed_dev_db.sql
+      - ../database/init:/docker-entrypoint-initdb.d
     networks:
       - agora-network
 
@@ -73,7 +72,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  agora-postgres-data:
   agora-grafana-data:
 
 networks:
