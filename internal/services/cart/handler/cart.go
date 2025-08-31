@@ -34,22 +34,22 @@ func (ch *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
-	var req dto.AddItemRequestDTO
+	var req dto.AddItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if req.UserId == "" || req.Item.ProductId == "" {
-		http.Error(w, "Missing user_id or product_id", http.StatusBadRequest)
+	if req.UserId == "" || req.Item.ProductCode == "" {
+		http.Error(w, "Missing user_id or product_code", http.StatusBadRequest)
 		return
 	}
 
 	itemToAdd := model.Item{
-		ProductId: req.Item.ProductId,
-		Name:      req.Item.Name,
-		Quantity:  req.Item.Quantity,
-		Price:     req.Item.Price,
+		ProductCode: req.Item.ProductCode,
+		Name:        req.Item.Name,
+		Quantity:    req.Item.Quantity,
+		Price:       req.Item.Price,
 	}
 
 	if err := ch.service.AddItem(req.UserId, &itemToAdd); err != nil {
@@ -61,18 +61,18 @@ func (ch *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
-	var req dto.RemoveItemRequestDTO
+	var req dto.RemoveItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if req.UserId == "" || req.ProductId == "" {
-		http.Error(w, "Missing user_id or product_id", http.StatusBadRequest)
+	if req.UserId == "" || req.ProductCode == "" {
+		http.Error(w, "Missing user_id or product_code", http.StatusBadRequest)
 		return
 	}
 
-	if err := ch.service.RemoveItem(req.UserId, req.ProductId); err != nil {
+	if err := ch.service.RemoveItem(req.UserId, req.ProductCode); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -81,7 +81,7 @@ func (ch *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *CartHandler) UpdateCart(w http.ResponseWriter, r *http.Request) {
-	var req dto.UpdateCartRequestDTO
+	var req dto.UpdateCartRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return

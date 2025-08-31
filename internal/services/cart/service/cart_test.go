@@ -13,10 +13,10 @@ func TestGetCartByUserIdSuccessfully(t *testing.T) {
 
 	userId := "10"
 	itemToAdd := model.Item{
-		ProductId: "1099",
-		Name:      "XYZ Product Name",
-		Price:     10.0,
-		Quantity:  1,
+		ProductCode: "1099",
+		Name:        "XYZ Product Name",
+		Price:       10.0,
+		Quantity:    1,
 	}
 	err := svc.AddItem(userId, &itemToAdd)
 	if err != nil {
@@ -38,10 +38,10 @@ func TestAddItemToCartSuccessfully(t *testing.T) {
 
 	userId := "10"
 	itemToAdd := model.Item{
-		ProductId: "1099",
-		Name:      "XYZ Product Name",
-		Price:     10.0,
-		Quantity:  1,
+		ProductCode: "1099",
+		Name:        "XYZ Product Name",
+		Price:       10.0,
+		Quantity:    1,
 	}
 
 	err := svc.AddItem(userId, &itemToAdd)
@@ -64,7 +64,7 @@ func TestRemoveItemFromCartSuccessfully(t *testing.T) {
 	svc := NewCartService(repo)
 
 	userID := "user123"
-	itemToAdd := model.Item{ProductId: "p1", Name: "Product", Price: 10.0, Quantity: 1}
+	itemToAdd := model.Item{ProductCode: "p1", Name: "Product", Price: 10.0, Quantity: 1}
 	_ = svc.AddItem(userID, &itemToAdd)
 
 	err := svc.RemoveItem(userID, "p1")
@@ -84,10 +84,10 @@ func TestClearCart(t *testing.T) {
 
 	userId := "10"
 	itemToAdd := model.Item{
-		ProductId: "1099",
-		Name:      "XYZ Product Name",
-		Price:     10.0,
-		Quantity:  1,
+		ProductCode: "1099",
+		Name:        "XYZ Product Name",
+		Price:       10.0,
+		Quantity:    1,
 	}
 	err := svc.AddItem(userId, &itemToAdd)
 	if err != nil {

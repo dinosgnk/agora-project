@@ -1,32 +1,37 @@
 package dto
 
-type ItemDTO struct {
-	ProductId string  `json:"product_id"`
-	Name      string  `json:"name"`
-	Quantity  int     `json:"quantity"`
-	Price     float64 `json:"price"`
+type Item struct {
+	ProductCode string  `json:"product_code"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	Price       float64 `json:"price"`
 }
 
-type AddItemRequestDTO struct {
-	UserId   string  `json:"user_id"`
-	Item     ItemDTO `json:"item"`
+type GetCartResponse struct {
+	UserId string `json:"user_id"`
+	Items  []Item `json:"items"`
 }
 
-type DeleteItemRequestDTO struct {
-	UserId    string `json:"user_id"`
-	ProductId string `json:"product_id"`
+type AddItemRequest struct {
+	UserId string `json:"user_id"`
+	Item   Item   `json:"item"`
 }
 
-type RemoveItemRequestDTO struct {
-	UserId    string `json:"user_id"`
-	ProductId string `json:"product_id"`
+type DeleteItemRequest struct {
+	UserId      string `json:"user_id"`
+	ProductCode string `json:"product_code"`
 }
 
-type UpdateCartRequestDTO struct {
-	UserId	string 	`json:"user_id"`
-	Items 	map[string]int `json:"items"`
+type RemoveItemRequest struct {
+	UserId      string `json:"user_id"`
+	ProductCode string `json:"product_code"`
+}
+
+type UpdateCartRequest struct {
+	UserId string         `json:"user_id"`
+	Items  map[string]int `json:"items"`
 }
 
 type ClearCartRequest struct {
-	UserId 	string `json:"user_id"`
+	UserId string `json:"user_id"`
 }

@@ -10,7 +10,7 @@ import (
 type ICartService interface {
 	GetCartByUserId(userId string) (*model.Cart, error)
 	AddItem(userId string, itemToAdd *model.Item) error
-	RemoveItem(userId string, productId string) error
+	RemoveItem(userId string, productCode string) error
 	UpdateCart(userId string, updatedCart map[string]int) error
 	ClearCart(userId string) error
 }
@@ -38,7 +38,7 @@ func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
 
 	// Check if item already exists
 	for i, item := range cart.Items {
-		if item.ProductId == itemToAdd.ProductId {
+		if item.ProductCode == itemToAdd.ProductCode {
 			cart.Items[i].Quantity += 1
 			return cs.repo.UpdateCart(cart)
 		}
@@ -48,7 +48,7 @@ func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
 	return cs.repo.UpdateCart(cart)
 }
 
-func (cs *CartService) RemoveItem(userId string, productId string) error {
+func (cs *CartService) RemoveItem(userId string, productCode string) error {
 	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
 		return errors.New("cart not found")
@@ -57,7 +57,7 @@ func (cs *CartService) RemoveItem(userId string, productId string) error {
 	// Filter out the item
 	newItems := make([]*model.Item, 0, len(cart.Items))
 	for _, item := range cart.Items {
-		if item.ProductId != productId {
+		if item.ProductCode != productCode {
 			newItems = append(newItems, item)
 		}
 	}
@@ -73,7 +73,7 @@ func (cs *CartService) UpdateCart(userId string, updatedCart map[string]int) err
 	}
 
 	for i, item := range cart.Items {
-		if newQuantity, exists := updatedCart[item.ProductId]; exists {
+		if newQuantity, exists := updatedCart[item.ProductCode]; exists {
 			if newQuantity == 0 {
 				cart.Items = append(cart.Items[:i], cart.Items[i+1:]...)
 				i--
