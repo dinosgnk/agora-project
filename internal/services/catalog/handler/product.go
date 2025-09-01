@@ -51,35 +51,19 @@ func (h *ProductHandler) GetProductByCode(ctx *gin.Context) {
 }
 
 func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
-	var req dto.CreateProductRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	var reqProduct *dto.CreateProductRequest
+	if err := ctx.ShouldBindJSON(reqProduct); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	product := model.Product{
-		ProductCode: req.ProductCode,
-		Name:        req.Name,
-		Category:    req.Category,
-		Description: req.Description,
-		Price:       req.Price,
-	}
-
-	createdProduct, err := h.service.CreateProduct(&product)
+	createdProduct, err := h.service.CreateProduct(reqProduct)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp := dto.ProductResponse{
-		ProductCode: createdProduct.ProductCode,
-		Name:        createdProduct.Name,
-		Category:    createdProduct.Category,
-		Description: createdProduct.Description,
-		Price:       createdProduct.Price,
-	}
-
-	ctx.JSON(http.StatusCreated, resp)
+	ctx.JSON(http.StatusCreated, createdProduct)
 }
 
 func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {

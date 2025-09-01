@@ -2,14 +2,16 @@ package service
 
 import (
 	"errors"
+	"log"
 
+	"github.com/dinosgnk/agora-project/internal/services/cart/dto"
 	"github.com/dinosgnk/agora-project/internal/services/cart/model"
 	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
 )
 
 type ICartService interface {
-	GetCartByUserId(userId string) (*model.Cart, error)
-	AddItem(userId string, itemToAdd *model.Item) error
+	GetCartByUserId(userId string) (*dto.CartResponse, error)
+	AddItem(userId string, itemToAdd *dto.Item) error
 	RemoveItem(userId string, productCode string) error
 	UpdateCart(userId string, updatedCart map[string]int) error
 	ClearCart(userId string) error
@@ -23,20 +25,26 @@ func NewCartService(repo repository.ICartRepository) *CartService {
 	return &CartService{repo: repo}
 }
 
-func (cs *CartService) GetCartByUserId(userId string) (*model.Cart, error) {
-	return cs.repo.GetCartByUserId(userId)
-}
-
-func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
+func (cs *CartService) GetCartByUserId(userId string) (*dto.CartResponse, error) {
 	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
+		log.Printf("Error retrieving cart for user %s: %v", userId, err)
+		return nil, err
+	}
+
+	return cs.mapCartModelToDto(cart), nil
+}
+
+func (cs *CartService) AddItem(userId string, itemToAdd *dto.Item) error {
+	cart, err := cs.repo.GetCartByUserId(userId)
+	if err != nil {
+		// Cart doesn't exist, create a new one
 		cart = &model.Cart{
 			UserId: userId,
 			Items:  []*model.Item{},
 		}
 	}
 
-	// Check if item already exists
 	for i, item := range cart.Items {
 		if item.ProductCode == itemToAdd.ProductCode {
 			cart.Items[i].Quantity += 1
@@ -44,7 +52,8 @@ func (cs *CartService) AddItem(userId string, itemToAdd *model.Item) error {
 		}
 	}
 
-	cart.Items = append(cart.Items, itemToAdd)
+	newItem := cs.mapItemDtoToModel(itemToAdd)
+	cart.Items = append(cart.Items, newItem)
 	return cs.repo.UpdateCart(cart)
 }
 
@@ -87,4 +96,35 @@ func (cs *CartService) UpdateCart(userId string, updatedCart map[string]int) err
 
 func (cs *CartService) ClearCart(userId string) error {
 	return cs.repo.Clear(userId)
+}
+
+// Helper functions to map between DTOs and Models
+func (cs *CartService) mapCartModelToDto(cart *model.Cart) *dto.CartResponse {
+	items := make([]dto.Item, len(cart.Items))
+	for i, item := range cart.Items {
+		items[i] = cs.mapItemModelToDto(item)
+	}
+
+	return &dto.CartResponse{
+		UserId: cart.UserId,
+		Items:  items,
+	}
+}
+
+func (cs *CartService) mapItemModelToDto(item *model.Item) dto.Item {
+	return dto.Item{
+		ProductCode: item.ProductCode,
+		Name:        item.Name,
+		Quantity:    item.Quantity,
+		Price:       item.Price,
+	}
+}
+
+func (cs *CartService) mapItemDtoToModel(item *dto.Item) *model.Item {
+	return &model.Item{
+		ProductCode: item.ProductCode,
+		Name:        item.Name,
+		Quantity:    item.Quantity,
+		Price:       item.Price,
+	}
 }

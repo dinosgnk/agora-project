@@ -7,7 +7,7 @@ type Item struct {
 	Price       float64 `json:"price"`
 }
 
-type GetCartResponse struct {
+type CartResponse struct {
 	UserId string `json:"user_id"`
 	Items  []Item `json:"items"`
 }

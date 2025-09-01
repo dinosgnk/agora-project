@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/dinosgnk/agora-project/internal/services/cart/dto"
-	"github.com/dinosgnk/agora-project/internal/services/cart/model"
 	"github.com/dinosgnk/agora-project/internal/services/cart/service"
 )
 
@@ -45,14 +44,14 @@ func (ch *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	itemToAdd := model.Item{
+	itemToAdd := &dto.Item{
 		ProductCode: req.Item.ProductCode,
 		Name:        req.Item.Name,
 		Quantity:    req.Item.Quantity,
 		Price:       req.Item.Price,
 	}
 
-	if err := ch.service.AddItem(req.UserId, &itemToAdd); err != nil {
+	if err := ch.service.AddItem(req.UserId, itemToAdd); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/dinosgnk/agora-project/internal/services/cart/model"
+	"github.com/dinosgnk/agora-project/internal/services/cart/dto"
 	"github.com/dinosgnk/agora-project/internal/services/cart/repository"
 )
 
@@ -12,13 +12,13 @@ func TestGetCartByUserIdSuccessfully(t *testing.T) {
 	svc := NewCartService(repo)
 
 	userId := "10"
-	itemToAdd := model.Item{
+	itemToAdd := &dto.Item{
 		ProductCode: "1099",
 		Name:        "XYZ Product Name",
 		Price:       10.0,
 		Quantity:    1,
 	}
-	err := svc.AddItem(userId, &itemToAdd)
+	err := svc.AddItem(userId, itemToAdd)
 	if err != nil {
 		t.Fatalf("Expected no error while adding item to cart, got %v", err)
 	}
@@ -27,6 +27,7 @@ func TestGetCartByUserIdSuccessfully(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Expected cart, got error %v", err)
 	}
+
 	if len(cart.Items) != 1 {
 		t.Fatalf("Expected 1 item in the cart, got %d", len(cart.Items))
 	}
@@ -37,14 +38,14 @@ func TestAddItemToCartSuccessfully(t *testing.T) {
 	svc := NewCartService(repo)
 
 	userId := "10"
-	itemToAdd := model.Item{
+	itemToAdd := &dto.Item{
 		ProductCode: "1099",
 		Name:        "XYZ Product Name",
 		Price:       10.0,
 		Quantity:    1,
 	}
 
-	err := svc.AddItem(userId, &itemToAdd)
+	err := svc.AddItem(userId, itemToAdd)
 	if err != nil {
 		t.Fatalf("Expected no error while adding item to cart, got %v", err)
 	}
@@ -64,8 +65,8 @@ func TestRemoveItemFromCartSuccessfully(t *testing.T) {
 	svc := NewCartService(repo)
 
 	userID := "user123"
-	itemToAdd := model.Item{ProductCode: "p1", Name: "Product", Price: 10.0, Quantity: 1}
-	_ = svc.AddItem(userID, &itemToAdd)
+	itemToAdd := &dto.Item{ProductCode: "p1", Name: "Product", Price: 10.0, Quantity: 1}
+	_ = svc.AddItem(userID, itemToAdd)
 
 	err := svc.RemoveItem(userID, "p1")
 	if err != nil {
@@ -83,13 +84,13 @@ func TestClearCart(t *testing.T) {
 	svc := NewCartService(repo)
 
 	userId := "10"
-	itemToAdd := model.Item{
+	itemToAdd := &dto.Item{
 		ProductCode: "1099",
 		Name:        "XYZ Product Name",
 		Price:       10.0,
 		Quantity:    1,
 	}
-	err := svc.AddItem(userId, &itemToAdd)
+	err := svc.AddItem(userId, itemToAdd)
 	if err != nil {
 		t.Fatalf("Expected no error while adding item to cart, got %v", err)
 	}

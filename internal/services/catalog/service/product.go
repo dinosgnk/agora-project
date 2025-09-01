@@ -10,7 +10,7 @@ type IProductService interface {
 	GetAllProducts() ([]*model.Product, error)
 	GetProductsByCategory(category string) ([]*model.Product, error)
 	GetProductByCode(productCode string) (*dto.ProductResponse, error)
-	CreateProduct(product *model.Product) (*model.Product, error)
+	CreateProduct(productReq *dto.CreateProductRequest) (*dto.ProductResponse, error)
 	UpdateProduct(productCode string, product *model.Product) (*model.Product, error)
 	DeleteProduct(productCode string) (bool, error)
 }
@@ -49,22 +49,18 @@ func (p *ProductService) GetProductByCode(productCode string) (*dto.ProductRespo
 		return nil, err
 	}
 
-	productResponse := &dto.ProductResponse{
-		ProductCode: product.ProductCode,
-		Name:        product.Name,
-		Category:    product.Category,
-		Description: product.Description,
-		Price:       product.Price,
-	}
-	return productResponse, nil
+	return p.mapProductModelToDto(product), nil
 }
 
-func (p *ProductService) CreateProduct(product *model.Product) (*model.Product, error) {
+func (p *ProductService) CreateProduct(productReq *dto.CreateProductRequest) (*dto.ProductResponse, error) {
+	product := p.mapProductDtoToModel(productReq)
+
 	createdProduct, err := p.repo.CreateProduct(product)
 	if err != nil {
 		return nil, err
 	}
-	return createdProduct, nil
+
+	return p.mapProductModelToDto(createdProduct), nil
 }
 
 func (p *ProductService) UpdateProduct(productCode string, updatedProduct *model.Product) (*model.Product, error) {
@@ -82,4 +78,25 @@ func (s *ProductService) DeleteProduct(productCode string) (bool, error) {
 	}
 
 	return productDeleted, nil
+}
+
+// Helper functions to map between DTOs and Models
+func (p *ProductService) mapProductDtoToModel(dto *dto.CreateProductRequest) *model.Product {
+	return &model.Product{
+		ProductCode: dto.ProductCode,
+		Name:        dto.Name,
+		Category:    dto.Category,
+		Description: dto.Description,
+		Price:       dto.Price,
+	}
+}
+
+func (p *ProductService) mapProductModelToDto(product *model.Product) *dto.ProductResponse {
+	return &dto.ProductResponse{
+		ProductCode: product.ProductCode,
+		Name:        product.Name,
+		Category:    product.Category,
+		Description: product.Description,
+		Price:       product.Price,
+	}
 }
