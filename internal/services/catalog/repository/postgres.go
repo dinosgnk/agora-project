@@ -1,8 +1,7 @@
 package repository
 
 import (
-	"fmt"
-
+	"github.com/dinosgnk/agora-project/internal/pkg/logger"
 	"github.com/dinosgnk/agora-project/internal/pkg/postgres"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/model"
 	"gorm.io/gorm"
@@ -13,20 +12,24 @@ type PostgresProductRepository struct {
 	gormDb *postgres.GormDatabase
 }
 
-func NewPostgresProductRepository() *PostgresProductRepository {
-
-	gormDb, err := postgres.NewGormDatabase(&gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "products.t_",
-			SingularTable: true,
+func NewPostgresProductRepository(logger logger.Logger) *PostgresProductRepository {
+	gormDb, err := postgres.NewGormDatabase(
+		logger,
+		&gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				TablePrefix:   "products.t_",
+				SingularTable: true,
+			},
 		},
-	})
+	)
 
 	if err != nil {
-		fmt.Printf("Cannot connect to database")
+		return nil
 	}
 
-	return &PostgresProductRepository{gormDb: gormDb}
+	return &PostgresProductRepository{
+		gormDb: gormDb,
+	}
 }
 
 func (repo *PostgresProductRepository) GetAllProducts() ([]*model.Product, error) {
@@ -68,6 +71,10 @@ func (repo *PostgresProductRepository) CreateProduct(product *model.Product) (*m
 
 func (repo *PostgresProductRepository) UpdateProduct(product *model.Product) (*model.Product, error) {
 	err := repo.gormDb.Model(&model.Product{}).Where("product_code = ?", product.ProductCode).Updates(product).Error
+	if err != nil {
+		return product, err
+	}
+
 	return product, err
 }
 

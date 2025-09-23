@@ -25,7 +25,7 @@ func (cm *InMemoryRepository) GetCartByUserId(userId string) (*model.Cart, error
 	if cart, ok := cm.data[userId]; ok {
 		return cart, nil
 	}
-	return nil, errors.New("Cart not found")
+	return nil, errors.New("cart not found")
 }
 
 func (cm *InMemoryRepository) UpdateCart(cart *model.Cart) error {

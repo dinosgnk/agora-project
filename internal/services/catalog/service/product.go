@@ -68,6 +68,7 @@ func (p *ProductService) UpdateProduct(productCode string, updatedProduct *model
 	if err != nil {
 		return nil, err
 	}
+
 	return product, nil
 }
 

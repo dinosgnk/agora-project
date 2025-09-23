@@ -2,6 +2,8 @@ package main
 
 import (
 	confighelper "github.com/dinosgnk/agora-project/internal/pkg/config"
+	"github.com/dinosgnk/agora-project/internal/pkg/logger"
+	middleware "github.com/dinosgnk/agora-project/internal/pkg/middleware/logging"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/config"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/handler"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/metrics"
@@ -12,14 +14,18 @@ import (
 )
 
 func main() {
-	cfg := confighelper.LoadConfig[config.AppConfig]()
+	log := logger.NewLogger()
 
-	productRepository := repository.NewPostgresProductRepository()
+	cfg := confighelper.LoadConfig[config.AppConfig](log)
+
+	log.Info("Starting catalog service", "environment", cfg.Environment, "port", cfg.Port)
+
+	productRepository := repository.NewPostgresProductRepository(log)
 	productService := service.NewProductService(productRepository)
-	productHandler := handler.NewProductHandler(productService)
+	productHandler := handler.NewProductHandler(productService, log)
 
-	router := gin.Default()
-
+	router := gin.New()
+	router.Use(middleware.RequestLoggingMiddleware(log))
 	router.Use(metrics.PrometheusMiddleware())
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
@@ -34,5 +40,6 @@ func main() {
 	router.PUT("/products/:productCode", productHandler.UpdateProduct)
 	router.DELETE("/products/:productCode", productHandler.DeleteProduct)
 
+	log.Info("Catalog service listening on port", "port", cfg.Port)
 	router.Run(":" + cfg.Port)
 }

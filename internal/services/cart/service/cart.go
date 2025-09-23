@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 
 	"github.com/dinosgnk/agora-project/internal/services/cart/dto"
 	"github.com/dinosgnk/agora-project/internal/services/cart/model"
@@ -22,13 +21,14 @@ type CartService struct {
 }
 
 func NewCartService(repo repository.ICartRepository) *CartService {
-	return &CartService{repo: repo}
+	return &CartService{
+		repo: repo,
+	}
 }
 
 func (cs *CartService) GetCartByUserId(userId string) (*dto.CartResponse, error) {
 	cart, err := cs.repo.GetCartByUserId(userId)
 	if err != nil {
-		log.Printf("Error retrieving cart for user %s: %v", userId, err)
 		return nil, err
 	}
 
@@ -95,7 +95,12 @@ func (cs *CartService) UpdateCart(userId string, updatedCart map[string]int) err
 }
 
 func (cs *CartService) ClearCart(userId string) error {
-	return cs.repo.Clear(userId)
+	err := cs.repo.Clear(userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Helper functions to map between DTOs and Models
