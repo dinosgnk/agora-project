@@ -5,24 +5,28 @@ import (
 	"time"
 
 	"github.com/dinosgnk/agora-project/internal/pkg/logger"
-	"github.com/dinosgnk/agora-project/internal/pkg/middleware"
 	"github.com/dinosgnk/agora-project/internal/pkg/middleware/logging"
 )
 
-func LoggingMiddleware(log logger.Logger) middleware.Middleware {
+func LoggingMiddleware(log logger.Logger) Middleware {
 
-	// Create the Middleware
-	return func(next http.HandlerFunc) http.HandlerFunc {
-
-		// Define the http.HandlerFunc the middleware returns
-		return func(w http.ResponseWriter, r *http.Request) {
-
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
-			responseWrapper := &CustomResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-			next(responseWrapper, r)
+			crw := &CustomResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+			next.ServeHTTP(crw, r)
 			duration := time.Since(start)
+			logging.LogRequest(log, r.Method, r.URL.Path, crw.statusCode, duration)
+		})
+	}
+}
 
-			logging.LogRequest(log, r.Method, r.URL.Path, responseWrapper.statusCode, duration)
-		}
+func TestMiddleware(log logger.Logger) Middleware {
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Info("Executing Test Middleware")
+			next.ServeHTTP(w, r)
+		})
 	}
 }

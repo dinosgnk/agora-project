@@ -21,6 +21,15 @@ func NewCartHandler(s service.ICartService, l logger.Logger) *CartHandler {
 	}
 }
 
+func (h *CartHandler) RegisterRoutes(mux *http.ServeMux) http.Handler {
+	mux.HandleFunc("/cart", h.GetCart)
+	mux.HandleFunc("/cart/item/add", h.AddItem)
+	mux.HandleFunc("/cart/item/delete", h.RemoveItem)
+	mux.HandleFunc("/cart/update", h.UpdateCart)
+	mux.HandleFunc("/cart/clear", h.ClearCart)
+	return mux
+}
+
 func (h *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("userId")
 	if userId == "" {

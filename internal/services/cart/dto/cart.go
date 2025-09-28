@@ -17,11 +17,6 @@ type AddItemRequest struct {
 	Item   Item   `json:"item"`
 }
 
-type DeleteItemRequest struct {
-	UserId      string `json:"user_id"`
-	ProductCode string `json:"product_code"`
-}
-
 type RemoveItemRequest struct {
 	UserId      string `json:"user_id"`
 	ProductCode string `json:"product_code"`

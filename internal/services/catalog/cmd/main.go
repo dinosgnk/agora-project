@@ -3,7 +3,7 @@ package main
 import (
 	confighelper "github.com/dinosgnk/agora-project/internal/pkg/config"
 	"github.com/dinosgnk/agora-project/internal/pkg/logger"
-	middleware "github.com/dinosgnk/agora-project/internal/pkg/middleware/logging"
+	"github.com/dinosgnk/agora-project/internal/pkg/middleware/ginmw"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/config"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/handler"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/metrics"
@@ -25,7 +25,7 @@ func main() {
 	productHandler := handler.NewProductHandler(productService, log)
 
 	router := gin.New()
-	router.Use(middleware.RequestLoggingMiddleware(log))
+	router.Use(ginmw.LoggingMiddleware(log))
 	router.Use(metrics.PrometheusMiddleware())
 
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
