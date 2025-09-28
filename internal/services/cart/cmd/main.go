@@ -5,7 +5,7 @@ import (
 
 	confighelper "github.com/dinosgnk/agora-project/internal/pkg/config"
 	"github.com/dinosgnk/agora-project/internal/pkg/logger"
-	"github.com/dinosgnk/agora-project/internal/pkg/middleware"
+	middleware "github.com/dinosgnk/agora-project/internal/pkg/middleware/logging"
 	"github.com/dinosgnk/agora-project/internal/services/cart/config"
 	"github.com/dinosgnk/agora-project/internal/services/cart/handler"
 	"github.com/dinosgnk/agora-project/internal/services/cart/metrics"

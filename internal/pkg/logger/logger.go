@@ -5,7 +5,6 @@ import (
 	"os"
 )
 
-// Logger interface for dependency injection
 type Logger interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
@@ -18,7 +17,6 @@ type SlogLogger struct {
 	logger *slog.Logger
 }
 
-// NewLogger creates a new logger instance
 func NewLogger() Logger {
 	return &SlogLogger{
 		logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
@@ -27,7 +25,6 @@ func NewLogger() Logger {
 	}
 }
 
-// NewLoggerWithLevel creates a new logger with specific level
 func NewLoggerWithLevel(level slog.Level) Logger {
 	return &SlogLogger{
 		logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
