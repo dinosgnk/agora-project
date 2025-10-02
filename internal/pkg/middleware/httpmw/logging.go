@@ -20,13 +20,3 @@ func LoggingMiddleware(log logger.Logger) Middleware {
 		})
 	}
 }
-
-func TestMiddleware(log logger.Logger) Middleware {
-
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Info("Executing Test Middleware")
-			next.ServeHTTP(w, r)
-		})
-	}
-}

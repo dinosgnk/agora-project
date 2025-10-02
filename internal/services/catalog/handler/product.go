@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/dinosgnk/agora-project/internal/pkg/logger"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/dto"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/model"
 	"github.com/dinosgnk/agora-project/internal/services/catalog/service"
-	"github.com/gin-gonic/gin"
 )
 
 type ProductHandler struct {
@@ -22,68 +22,87 @@ func NewProductHandler(s *service.ProductService, l logger.Logger) *ProductHandl
 	}
 }
 
-func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
+func (h *ProductHandler) RegisterRoutes(mux *http.ServeMux) http.Handler {
+	mux.HandleFunc("GET /products", h.GetAllProducts)
+	mux.HandleFunc("GET /products/category/{category}", h.GetProductsByCategory)
+	mux.HandleFunc("GET /products/{productCode}", h.GetProductByCode)
+	mux.HandleFunc("POST /products", h.CreateProduct)
+	mux.HandleFunc("PUT /products/{productCode}", h.UpdateProduct)
+	mux.HandleFunc("DELETE /products/{productCode}", h.DeleteProduct)
+
+	return mux
+}
+
+func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.service.GetAllProducts()
 	if err != nil {
 		h.log.Error("Failed to get all products", "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, products)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(products)
 }
 
-func (h *ProductHandler) GetProductsByCategory(ctx *gin.Context) {
-	category := ctx.Param("category")
+func (h *ProductHandler) GetProductsByCategory(w http.ResponseWriter, r *http.Request) {
+	category := r.PathValue("category")
 
 	products, err := h.service.GetProductsByCategory(category)
 	if err != nil {
 		h.log.Error("Failed to get products by category", "category", category, "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, products)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(products)
 }
 
-func (h *ProductHandler) GetProductByCode(ctx *gin.Context) {
-	productCode := ctx.Param("productCode")
+func (h *ProductHandler) GetProductByCode(w http.ResponseWriter, r *http.Request) {
+	productCode := r.PathValue("productCode")
 
 	product, err := h.service.GetProductByCode(productCode)
 	if err != nil {
 		h.log.Error("Failed to get product by code", "product_code", productCode, "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, product)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(product)
 }
 
-func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
+func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var reqProduct dto.CreateProductRequest
-	if err := ctx.ShouldBindJSON(&reqProduct); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&reqProduct); err != nil {
 		h.log.Warn("Invalid request body for create product", "error", err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	createdProduct, err := h.service.CreateProduct(&reqProduct)
 	if err != nil {
 		h.log.Error("Failed to create product", "product_code", reqProduct.ProductCode, "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, createdProduct)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(createdProduct)
 }
 
-func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
-	productCode := ctx.Param("productCode")
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	productCode := r.PathValue("productCode")
 
 	var req dto.UpdateProductRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.log.Warn("Invalid request body for update product", "product_code", productCode, "error", err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -98,7 +117,7 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 	updatedProduct, err := h.service.UpdateProduct(productCode, product)
 	if err != nil {
 		h.log.Error("Failed to update product", "product_code", productCode, "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -110,24 +129,26 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 		Price:       updatedProduct.Price,
 	}
 
-	ctx.JSON(http.StatusOK, resp)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
 }
 
-func (h *ProductHandler) DeleteProduct(c *gin.Context) {
-	productCode := c.Param("productCode")
+func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	productCode := r.PathValue("productCode")
 
 	deleted, err := h.service.DeleteProduct(productCode)
 	if err != nil {
 		h.log.Error("Failed to delete product", "product_code", productCode, "error", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if !deleted {
 		h.log.Warn("Product not found for deletion", "product_code", productCode)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		http.Error(w, "Product not found", http.StatusNotFound)
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	w.WriteHeader(http.StatusNoContent)
 }

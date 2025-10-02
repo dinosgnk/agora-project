@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dinosgnk/agora-project/internal/pkg/httpx"
@@ -25,7 +26,6 @@ func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger) *Ser
 	router := httpx.NewRouter(apiHandler)
 	router.Handle("/metrics", promhttp.Handler())
 	router.AddMiddleware(httpmw.LoggingMiddleware(log))
-	router.AddMiddleware(httpmw.TestMiddleware(log))
 
 	httpHandler := router.BuildHttpHandler()
 
@@ -41,7 +41,7 @@ func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger) *Ser
 }
 
 func (s *Server) Run() error {
-	s.log.Info("Starting server, listening on:", "address", s.address)
+	s.log.Info(fmt.Sprintf("Starting server, listening on: %s", s.address))
 	if err := http.ListenAndServe(s.address, s.httpHandler); err != nil && err != http.ErrServerClosed {
 		s.log.Error("Failed to start server", "error", err.Error())
 		return err
