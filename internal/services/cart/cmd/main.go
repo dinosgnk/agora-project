@@ -20,7 +20,7 @@ func main() {
 	cartService := service.NewCartService(cartRepository)
 	cartHandler := handler.NewCartHandler(cartService, log)
 
-	server := server.NewServer(cfg.Port, cartHandler, log)
+	server := server.NewServer(cfg.Port, cartHandler, log, cfg.Service)
 	if err := server.Run(); err != nil {
 		os.Exit(1)
 	}

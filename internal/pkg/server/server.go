@@ -6,7 +6,7 @@ import (
 
 	"github.com/dinosgnk/agora-project/internal/pkg/httpx"
 	"github.com/dinosgnk/agora-project/internal/pkg/logger"
-	"github.com/dinosgnk/agora-project/internal/pkg/middleware/httpmw"
+	"github.com/dinosgnk/agora-project/internal/pkg/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -19,13 +19,15 @@ type Server struct {
 	httpHandler http.Handler
 	log         logger.Logger
 	apiHandler  httpx.ApiHandler
+	service     string
 	ServerConfig
 }
 
-func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger) *Server {
+func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger, service string) *Server {
 	router := httpx.NewRouter(apiHandler)
 	router.Handle("/metrics", promhttp.Handler())
-	router.AddMiddleware(httpmw.LoggingMiddleware(log))
+	router.AddMiddleware(middleware.Logging(log))
+	router.AddMiddleware(middleware.Metrics(service))
 
 	httpHandler := router.BuildHttpHandler()
 
@@ -33,6 +35,7 @@ func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger) *Ser
 		httpHandler: httpHandler,
 		log:         log,
 		apiHandler:  apiHandler,
+		service:     service,
 		ServerConfig: ServerConfig{
 			address: "localhost:" + port,
 			port:    port,

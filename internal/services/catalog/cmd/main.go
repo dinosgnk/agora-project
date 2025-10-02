@@ -20,7 +20,7 @@ func main() {
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(productService, log)
 
-	server := server.NewServer(cfg.Port, productHandler, log)
+	server := server.NewServer(cfg.Port, productHandler, log, cfg.Service)
 	if err := server.Run(); err != nil {
 		os.Exit(1)
 	}

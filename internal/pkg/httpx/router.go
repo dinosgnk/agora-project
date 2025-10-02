@@ -3,13 +3,13 @@ package httpx
 import (
 	"net/http"
 
-	"github.com/dinosgnk/agora-project/internal/pkg/middleware/httpmw"
+	"github.com/dinosgnk/agora-project/internal/pkg/middleware"
 )
 
 type Router struct {
 	mux         *http.ServeMux
 	apiHandler  ApiHandler
-	middlewares []httpmw.Middleware
+	middlewares []middleware.Middleware
 }
 
 func NewRouter(ah ApiHandler) *Router {
@@ -18,7 +18,7 @@ func NewRouter(ah ApiHandler) *Router {
 	return &Router{
 		mux:         mux,
 		apiHandler:  ah,
-		middlewares: make([]httpmw.Middleware, 0),
+		middlewares: make([]middleware.Middleware, 0),
 	}
 }
 
@@ -26,11 +26,11 @@ func (r *Router) Handle(pattern string, handler http.Handler) {
 	r.mux.Handle(pattern, handler)
 }
 
-func (r *Router) AddMiddleware(middleware httpmw.Middleware) {
+func (r *Router) AddMiddleware(middleware middleware.Middleware) {
 	r.middlewares = append(r.middlewares, middleware)
 }
 
-func (r *Router) MiddlewareChain(next http.Handler, middlewares ...httpmw.Middleware) http.Handler {
+func (r *Router) MiddlewareChain(next http.Handler, middlewares ...middleware.Middleware) http.Handler {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		next = middlewares[i](next)
 	}

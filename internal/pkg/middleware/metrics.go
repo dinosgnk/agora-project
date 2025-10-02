@@ -1,6 +1,10 @@
-package metrics
+package middleware
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -49,3 +53,33 @@ var (
 		[]string{"method", "path", "service"},
 	)
 )
+
+func Metrics(service string) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			method := r.Method
+			path := r.URL.Path
+
+			requestSize := float64(r.ContentLength)
+
+			crw := &CustomResponseWriter{
+				ResponseWriter: w,
+				statusCode:     http.StatusOK,
+				size:           0,
+			}
+
+			httpRequestsInFlight.WithLabelValues(method, path, service).Inc()
+			next.ServeHTTP(crw, r)
+			httpRequestsInFlight.WithLabelValues(method, path, service).Dec()
+
+			duration := float64(time.Since(start).Nanoseconds()) / 1e6
+			statusCode := strconv.Itoa(crw.statusCode/100) + "xx"
+			responseSize := float64(crw.size)
+			httpRequestDuration.WithLabelValues(method, path, statusCode, service).Observe(duration)
+			httpRequestsTotal.WithLabelValues(method, path, statusCode, service).Inc()
+			httpRequestSize.WithLabelValues(method, path, statusCode, service).Observe(requestSize)
+			httpResponseSize.WithLabelValues(method, path, statusCode, service).Observe(responseSize)
+		})
+	}
+}
