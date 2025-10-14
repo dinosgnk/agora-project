@@ -1,0 +1,15 @@
+FROM golang:1.24 AS builder
+WORKDIR /app/internal/services/order
+
+# Build dependencies
+COPY internal/services/order/go.mod internal/services/order/go.sum .
+COPY internal/pkg/go.mod internal/pkg/go.sum ../../pkg
+RUN go mod download
+
+# Build the application
+COPY internal/services/order .
+COPY internal/pkg ../../pkg
+
+WORKDIR /app/internal/services/order
+RUN go build -o order-service ./cmd/main.go
+CMD ["./order-service"]

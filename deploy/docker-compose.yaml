@@ -1,4 +1,18 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: agora-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin_pass
+      POSTGRES_DB: AgoraDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../database/init:/docker-entrypoint-initdb.d
+    networks:
+      - agora-network
+      
   catalog-service:
     build:
       context: ..
@@ -18,20 +32,6 @@ services:
       - agora-network
     restart: unless-stopped
 
-  postgres:
-    image: postgres:17-alpine
-    container_name: agora-postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin_pass
-      POSTGRES_DB: AgoraDB
-    ports:
-      - "5432:5432"
-    volumes:
-      - ../database/init:/docker-entrypoint-initdb.d
-    networks:
-      - agora-network
-
   cart-service:
     build:
       context: ..
@@ -45,6 +45,27 @@ services:
     networks:
       - agora-network
     restart: unless-stopped
+
+  order-service:
+    build:
+      context: ..
+      dockerfile: internal/services/order/Dockerfile.development
+    container_name: agora-order-service
+    environment:
+      - ENVIRONMENT=Development
+      - PORT=5000
+      - DB_HOST=agora-postgres
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=admin_pass
+      - DB_NAME=AgoraDB
+    ports:
+      - "8083:5000"
+    networks:
+      - agora-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
 
   prometheus:
     image: prom/prometheus:latest

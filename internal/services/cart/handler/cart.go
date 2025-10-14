@@ -22,22 +22,16 @@ func NewCartHandler(s service.ICartService, l logger.Logger) *CartHandler {
 }
 
 func (h *CartHandler) RegisterRoutes(mux *http.ServeMux) http.Handler {
-	mux.HandleFunc("/cart", h.GetCart)
-	mux.HandleFunc("/cart/item/add", h.AddItem)
-	mux.HandleFunc("/cart/item/delete", h.RemoveItem)
-	mux.HandleFunc("/cart/update", h.UpdateCart)
-	mux.HandleFunc("/cart/clear", h.ClearCart)
+	mux.HandleFunc("/cart/{userId}", h.GetCart)
+	mux.HandleFunc("/cart/item/add/{userId}", h.AddItem)
+	mux.HandleFunc("/cart/item/delete/{userId}", h.RemoveItem)
+	mux.HandleFunc("/cart/update/{userId}", h.UpdateCart)
+	mux.HandleFunc("/cart/clear/{userId}", h.ClearCart)
 	return mux
 }
 
 func (h *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
-	userId := r.URL.Query().Get("userId")
-	if userId == "" {
-		h.log.Warn("Get cart request missing userId")
-		http.Error(w, "Missing userId", http.StatusBadRequest)
-		return
-	}
-
+	userId := r.PathValue("userId")
 	basket, err := h.service.GetCartByUserId(userId)
 	if err != nil {
 		h.log.Error("Failed to get cart", "user_id", userId, "error", err.Error())
@@ -50,16 +44,12 @@ func (h *CartHandler) GetCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
+	userId := r.PathValue("userId")
+
 	var req dto.AddItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.log.Warn("Invalid request body for add item", "error", err.Error())
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if req.UserId == "" || req.Item.ProductCode == "" {
-		h.log.Warn("Add item request missing required fields", "user_id", req.UserId, "product_code", req.Item.ProductCode)
-		http.Error(w, "Missing user_id or product_code", http.StatusBadRequest)
 		return
 	}
 
@@ -70,8 +60,8 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 		Price:       req.Item.Price,
 	}
 
-	if err := h.service.AddItem(req.UserId, itemToAdd); err != nil {
-		h.log.Error("Failed to add item to cart", "user_id", req.UserId, "product_code", req.Item.ProductCode, "error", err.Error())
+	if err := h.service.AddItem(userId, itemToAdd); err != nil {
+		h.log.Error("Failed to add item to cart", "user_id", userId, "product_code", req.Item.ProductCode, "error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -80,6 +70,8 @@ func (h *CartHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
+	userId := r.PathValue("userId")
+
 	var req dto.RemoveItemRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.log.Warn("Invalid request body for remove item", "error", err.Error())
@@ -87,14 +79,8 @@ func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.UserId == "" || req.ProductCode == "" {
-		h.log.Warn("Remove item request missing required fields", "user_id", req.UserId, "product_code", req.ProductCode)
-		http.Error(w, "Missing user_id or product_code", http.StatusBadRequest)
-		return
-	}
-
-	if err := h.service.RemoveItem(req.UserId, req.ProductCode); err != nil {
-		h.log.Error("Failed to remove item from cart", "user_id", req.UserId, "product_code", req.ProductCode, "error", err.Error())
+	if err := h.service.RemoveItem(userId, req.ProductCode); err != nil {
+		h.log.Error("Failed to remove item from cart", "user_id", userId, "product_code", req.ProductCode, "error", err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -103,6 +89,8 @@ func (h *CartHandler) RemoveItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) UpdateCart(w http.ResponseWriter, r *http.Request) {
+	userId := r.PathValue("userId")
+
 	var req dto.UpdateCartRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.log.Warn("Invalid request body for update cart", "error", err.Error())
@@ -110,14 +98,8 @@ func (h *CartHandler) UpdateCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.Items) == 0 {
-		h.log.Info("Update cart request with no items", "user_id", req.UserId)
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	if err := h.service.UpdateCart(req.UserId, req.Items); err != nil {
-		h.log.Error("Failed to update cart", "user_id", req.UserId, "error", err.Error())
+	if err := h.service.UpdateCart(userId, req.Items); err != nil {
+		h.log.Error("Failed to update cart", "user_id", userId, "error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -125,12 +107,7 @@ func (h *CartHandler) UpdateCart(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CartHandler) ClearCart(w http.ResponseWriter, r *http.Request) {
-	userId := r.URL.Query().Get("userId")
-	if userId == "" {
-		h.log.Warn("Clear cart request missing userId")
-		http.Error(w, "missing userId", http.StatusBadRequest)
-		return
-	}
+	userId := r.PathValue("userId")
 
 	if err := h.service.ClearCart(userId); err != nil {
 		h.log.Error("Failed to clear cart", "user_id", userId, "error", err.Error())
