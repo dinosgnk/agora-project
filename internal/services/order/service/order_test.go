@@ -8,10 +8,9 @@ import (
 	"github.com/dinosgnk/agora-project/internal/services/order/repository"
 )
 
-func TestCreateOrderSuccessfully(t *testing.T) {
+func TestDeleteOrderSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
-
+	svc := NewOrderService(repo, nil)
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
 		Products: []*dto.OrderedProduct{
@@ -70,7 +69,7 @@ func TestCreateOrderSuccessfully(t *testing.T) {
 
 func TestGetAllOrderSummariesSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq1 := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -104,7 +103,7 @@ func TestGetAllOrderSummariesSuccessfully(t *testing.T) {
 
 func TestGetAllOrdersSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -133,7 +132,7 @@ func TestGetAllOrdersSuccessfully(t *testing.T) {
 
 func TestGetOrderSummaryByIDSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -161,7 +160,7 @@ func TestGetOrderSummaryByIDSuccessfully(t *testing.T) {
 
 func TestGetOrderByIDSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -190,7 +189,7 @@ func TestGetOrderByIDSuccessfully(t *testing.T) {
 
 func TestGetAllOrderSummariesByUserIDSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	userId := "user123"
 
@@ -237,7 +236,7 @@ func TestGetAllOrderSummariesByUserIDSuccessfully(t *testing.T) {
 
 func TestGetAllOrdersByUserIDSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	userId := "user123"
 
@@ -268,7 +267,7 @@ func TestGetAllOrdersByUserIDSuccessfully(t *testing.T) {
 
 func TestGetProductsByOrderIDSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -303,9 +302,9 @@ func TestGetProductsByOrderIDSuccessfully(t *testing.T) {
 	}
 }
 
-func TestUpdateOrderStatusSuccessfully(t *testing.T) {
+func TestUpdateOrderStatusWithInvalidTransition(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -333,7 +332,7 @@ func TestUpdateOrderStatusSuccessfully(t *testing.T) {
 
 func TestCancelOrderSuccessfully(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -362,7 +361,7 @@ func TestCancelOrderSuccessfully(t *testing.T) {
 
 func TestCancelOrderFromConfirmedStatus(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -395,7 +394,7 @@ func TestCancelOrderFromConfirmedStatus(t *testing.T) {
 
 func TestCancelOrderWithInvalidStatus(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	orderReq := &dto.CreateOrderRequest{
 		UserID: "user123",
@@ -423,7 +422,7 @@ func TestCancelOrderWithInvalidStatus(t *testing.T) {
 
 func TestCreateOrderCalculatesTotalCorrectly(t *testing.T) {
 	repo := repository.NewMockOrderRepository()
-	svc := NewOrderService(repo)
+	svc := NewOrderService(repo, nil)
 
 	testCases := []struct {
 		name     string

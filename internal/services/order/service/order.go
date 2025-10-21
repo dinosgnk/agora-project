@@ -7,6 +7,7 @@ import (
 
 	"github.com/dinosgnk/agora-project/internal/services/order/dto"
 	"github.com/dinosgnk/agora-project/internal/services/order/enums"
+	"github.com/dinosgnk/agora-project/internal/services/order/messaging"
 	"github.com/dinosgnk/agora-project/internal/services/order/model"
 	"github.com/dinosgnk/agora-project/internal/services/order/repository"
 )
@@ -24,12 +25,14 @@ type IOrderService interface {
 }
 
 type OrderService struct {
-	repo repository.IOrderRepository
+	repo      repository.IOrderRepository
+	publisher *messaging.Publisher
 }
 
-func NewOrderService(repo repository.IOrderRepository) *OrderService {
+func NewOrderService(repo repository.IOrderRepository, publisher *messaging.Publisher) *OrderService {
 	return &OrderService{
-		repo: repo,
+		repo:      repo,
+		publisher: publisher,
 	}
 }
 
@@ -65,6 +68,33 @@ func (s *OrderService) CreateOrder(orderReq *dto.CreateOrderRequest) (*dto.Order
 	createdOrder, err := s.repo.CreateOrder(order, orderProducts)
 	if err != nil {
 		return nil, err
+	}
+
+	if s.publisher != nil {
+		eventProducts := make([]messaging.OrderCreatedProduct, 0, len(orderReq.Products))
+		for _, p := range orderReq.Products {
+			eventProducts = append(eventProducts, messaging.OrderCreatedProduct{
+				ProductCode: p.ProductCode,
+				ProductName: p.ProductName,
+				Quantity:    p.Quantity,
+				Price:       p.Price,
+			})
+		}
+
+		orderCreatedEvent := &messaging.OrderCreatedEvent{
+			OrderEvent: messaging.OrderEvent{
+				OrderID: createdOrder.ID,
+				UserID:  createdOrder.UserID,
+			},
+			TotalAmount:     createdOrder.TotalAmount,
+			ShippingAddress: createdOrder.ShippingAddress,
+			PaymentMethod:   createdOrder.PaymentMethod,
+			Products:        eventProducts,
+		}
+
+		if err := s.publisher.PublishOrderCreated(orderCreatedEvent); err != nil {
+			fmt.Printf("Failed to publish OrderCreated event: %v\n", err)
+		}
 	}
 
 	return &dto.OrderResponse{
@@ -275,6 +305,8 @@ func (s *OrderService) UpdateOrderStatus(orderId string, statusReq *dto.UpdateOr
 		return err
 	}
 
+	oldStatus := order.Status
+
 	if statusReq.Status == enums.OrderStatusCancelled {
 		if order.Status != enums.OrderStatusPending &&
 			order.Status != enums.OrderStatusConfirmed &&
@@ -283,5 +315,73 @@ func (s *OrderService) UpdateOrderStatus(orderId string, statusReq *dto.UpdateOr
 		}
 	}
 
-	return s.repo.UpdateOrderStatus(orderId, statusReq.Status)
+	err = s.repo.UpdateOrderStatus(orderId, statusReq.Status)
+	if err != nil {
+		return err
+	}
+
+	// Publish events based on new status
+	if s.publisher != nil {
+		baseEvent := messaging.OrderEvent{
+			OrderID: orderId,
+			UserID:  order.UserID,
+		}
+
+		// Always publish status updated event
+		statusUpdatedEvent := &messaging.OrderStatusUpdatedEvent{
+			OrderEvent: baseEvent,
+			OldStatus:  string(oldStatus),
+			NewStatus:  string(statusReq.Status),
+		}
+		if err := s.publisher.PublishOrderStatusUpdated(statusUpdatedEvent); err != nil {
+			fmt.Printf("Failed to publish OrderStatusUpdated event: %v\n", err)
+		}
+
+		// Publish specific status events
+		switch statusReq.Status {
+		case enums.OrderStatusConfirmed:
+			event := &messaging.OrderConfirmedEvent{
+				OrderEvent:    baseEvent,
+				PaymentMethod: order.PaymentMethod,
+				TotalAmount:   order.TotalAmount,
+			}
+			if err := s.publisher.PublishOrderConfirmed(event); err != nil {
+				fmt.Printf("Failed to publish OrderConfirmed event: %v\n", err)
+			}
+
+		case enums.OrderStatusProcessing:
+			event := &messaging.OrderProcessingEvent{
+				OrderEvent: baseEvent,
+			}
+			if err := s.publisher.PublishOrderProcessing(event); err != nil {
+				fmt.Printf("Failed to publish OrderProcessing event: %v\n", err)
+			}
+
+		case enums.OrderStatusShipped:
+			event := &messaging.OrderShippedEvent{
+				OrderEvent: baseEvent,
+			}
+			if err := s.publisher.PublishOrderShipped(event); err != nil {
+				fmt.Printf("Failed to publish OrderShipped event: %v\n", err)
+			}
+
+		case enums.OrderStatusDelivered:
+			event := &messaging.OrderDeliveredEvent{
+				OrderEvent: baseEvent,
+			}
+			if err := s.publisher.PublishOrderDelivered(event); err != nil {
+				fmt.Printf("Failed to publish OrderDelivered event: %v\n", err)
+			}
+
+		case enums.OrderStatusCancelled:
+			event := &messaging.OrderCancelledEvent{
+				OrderEvent: baseEvent,
+			}
+			if err := s.publisher.PublishOrderCancelled(event); err != nil {
+				fmt.Printf("Failed to publish OrderCancelled event: %v\n", err)
+			}
+		}
+	}
+
+	return nil
 }

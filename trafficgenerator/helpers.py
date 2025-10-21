@@ -3,7 +3,7 @@ from typing import List, Dict
 import requests
 import os
 
-CATALOG_SERVICE = f"http://{os.getenv('CATALOG_SERVICE', 'localhost')}:8081"  
+CATALOG_SERVICE = f"http://{os.getenv('CATALOG_SERVICE')}"  
 
 def get_all_product_categories() -> List[str]:
     """Fetch all unique product categories from the catalog service"""
@@ -11,7 +11,7 @@ def get_all_product_categories() -> List[str]:
         response = requests.get(f"{CATALOG_SERVICE}/products")
         if response.status_code == 200:
             products = response.json()
-            categories = list(set(product.get("category", "") for product in products))
+            categories = list(set(product.get("Category", "") for product in products))
             print(f"Loaded {len(categories)} unique categories from catalog")
             return categories
         else:
@@ -36,5 +36,3 @@ def get_all_products() -> List[Dict]:
         print(f"Error fetching products: {e}")
         return []
     
-
-print(get_all_product_categories())

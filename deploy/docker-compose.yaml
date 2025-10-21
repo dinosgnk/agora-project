@@ -12,7 +12,20 @@ services:
       - ../database/init:/docker-entrypoint-initdb.d
     networks:
       - agora-network
-      
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: agora-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - agora-network
+    restart: unless-stopped
+
   catalog-service:
     build:
       context: ..
@@ -54,11 +67,16 @@ services:
     environment:
       - ENVIRONMENT=Development
       - PORT=5000
+      - SERVICE_NAME=order-service
       - DB_HOST=agora-postgres
       - DB_PORT=5432
       - DB_USER=admin
       - DB_PASSWORD=admin_pass
       - DB_NAME=AgoraDB
+      - RABBITMQ_HOST=agora-rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
     ports:
       - "8083:5000"
     networks:
@@ -66,6 +84,28 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
+      - rabbitmq
+
+  notification-service:
+    build:
+      context: ..
+      dockerfile: internal/services/notification/Dockerfile.development
+    container_name: agora-notification-service
+    environment:
+      - ENVIRONMENT=Development
+      - PORT=5000
+      - SERVICE_NAME=notification-service
+      - RABBITMQ_HOST=agora-rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    ports:
+      - "8084:5000"
+    networks:
+      - agora-network
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
 
   prometheus:
     image: prom/prometheus:latest

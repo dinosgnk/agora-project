@@ -37,7 +37,7 @@ func NewServer(port string, apiHandler httpx.ApiHandler, log logger.Logger, serv
 		apiHandler:  apiHandler,
 		service:     service,
 		ServerConfig: ServerConfig{
-			address: "localhost:" + port,
+			address: "0.0.0.0:" + port,
 			port:    port,
 		},
 	}
